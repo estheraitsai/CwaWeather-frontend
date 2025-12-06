@@ -264,20 +264,29 @@
         <p style="color: white; font-weight: bold; margin-top: 20px;">正在觀測雲的流動...</p>
     </div>
     <div class="status-bar">
-        <div class="location-pill">📍 宜蘭</div>
+        <div class="location-pill">📍 讀取中...</div>
         <div id="updateTime" class="update-pill">更新中...</div>
     </div>
 
-    <div class="container" id="mainContent" style="display: none;">
+<div class="container" id="mainContent" style="display: none;">
 
-        <div id="heroCard">
-        </div>
-
-        <h3 class="section-title">稍後預報</h3>
-        <div class="scroll-container" id="futureForecasts">
-        </div>
-
+    <!-- 地區選擇區塊 -->
+    <div style="margin-bottom: 15px; display:flex; gap:8px; align-items:center;">
+        <select id="citySelect" 
+                style="flex:1; padding:8px 12px; border-radius:999px; border:none; font-family:inherit; font-weight:700; font-size:0.9rem;">
+        </select>
+        <button id="autoLocateBtn"
+                style="white-space:nowrap; border:none; border-radius:999px; padding:8px 12px; background:#F9F195; font-weight:700; cursor:pointer;">
+            📡 自動偵測
+        </button>
     </div>
+
+    <div id="heroCard"></div>
+
+    <h3 class="section-title">稍後預報</h3>
+    <div class="scroll-container" id="futureForecasts"></div>
+
+</div>
 
     <script>
         const API_URL = "https://esthertsai-weather-tw.zeabur.app/api/weather/kaohsiung";
