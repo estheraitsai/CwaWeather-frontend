@@ -264,7 +264,7 @@
         <p style="color: white; font-weight: bold; margin-top: 20px;">正在觀測雲的流動...</p>
     </div>
     <div class="status-bar">
-        <div class="location-pill">📍 讀取中...</div>
+        <div class="location-pill" id="locationPill">📍 讀取中...</div>
         <div id="updateTime" class="update-pill">更新中...</div>
     </div>
 
@@ -289,147 +289,258 @@
 </div>
 
     <script>
-        const API_URL = "https://esthertsai-weather-tw.zeabur.app/api/weather/kaohsiung";
+    // 後端新版 API：不再帶 /kaohsiung，而是 /api/weather
+    const API_BASE = "https://esthertsai-weather-tw.zeabur.app/api/weather";
 
-        function getWeatherIcon(weather) {
-            if (!weather) return "🌤️";
-            if (weather.includes("晴")) return "☀️";
-            if (weather.includes("多雲")) return "⛅";
-            if (weather.includes("陰")) return "☁️";
-            if (weather.includes("雨")) return "🌧️";
-            if (weather.includes("雷")) return "⛈️";
-            return "🌤️";
+    // 前端縣市列表（要跟後端 / CWA 的 locationName 一樣）
+    const CITIES = [
+        { locationName: "臺北市", label: "臺北", lat: 25.04, lng: 121.56 },
+        { locationName: "新北市", label: "新北", lat: 25.01, lng: 121.46 },
+        { locationName: "基隆市", label: "基隆", lat: 25.13, lng: 121.74 },
+        { locationName: "桃園市", label: "桃園", lat: 24.99, lng: 121.31 },
+        { locationName: "新竹市", label: "新竹市", lat: 24.81, lng: 120.97 },
+        { locationName: "新竹縣", label: "新竹縣", lat: 24.84, lng: 121.0 },
+        { locationName: "苗栗縣", label: "苗栗", lat: 24.56, lng: 120.82 },
+        { locationName: "臺中市", label: "臺中", lat: 24.15, lng: 120.68 },
+        { locationName: "彰化縣", label: "彰化", lat: 24.07, lng: 120.54 },
+        { locationName: "南投縣", label: "南投", lat: 23.91, lng: 120.68 },
+        { locationName: "雲林縣", label: "雲林", lat: 23.71, lng: 120.54 },
+        { locationName: "嘉義市", label: "嘉義市", lat: 23.48, lng: 120.44 },
+        { locationName: "嘉義縣", label: "嘉義縣", lat: 23.45, lng: 120.25 },
+        { locationName: "臺南市", label: "臺南", lat: 22.99, lng: 120.21 },
+        { locationName: "高雄市", label: "高雄", lat: 22.63, lng: 120.3 },
+        { locationName: "屏東縣", label: "屏東", lat: 22.68, lng: 120.48 },
+        { locationName: "宜蘭縣", label: "宜蘭", lat: 24.76, lng: 121.75 },
+        { locationName: "花蓮縣", label: "花蓮", lat: 23.99, lng: 121.6 },
+        { locationName: "臺東縣", label: "臺東", lat: 22.75, lng: 121.15 },
+        { locationName: "澎湖縣", label: "澎湖", lat: 23.57, lng: 119.57 },
+        { locationName: "金門縣", label: "金門", lat: 24.44, lng: 118.32 },
+        { locationName: "連江縣", label: "馬祖", lat: 26.16, lng: 119.95 },
+    ];
+
+    function getWeatherIcon(weather) {
+        if (!weather) return "🌤️";
+        if (weather.includes("晴")) return "☀️";
+        if (weather.includes("多雲")) return "⛅";
+        if (weather.includes("陰")) return "☁️";
+        if (weather.includes("雨")) return "🌧️";
+        if (weather.includes("雷")) return "⛈️";
+        return "🌤️";
+    }
+
+    function getAdvice(rainProb, maxTemp) {
+        let rainIcon = "🌂";
+        let rainText = "不用帶傘";
+        if (parseInt(rainProb) > 30) {
+            rainIcon = "☂️";
+            rainText = "記得帶傘！";
         }
 
-        function getAdvice(rainProb, maxTemp) {
-            let rainIcon = "🌂";
-            let rainText = "不用帶傘";
-            if (parseInt(rainProb) > 30) {
-                rainIcon = "☂️";
-                rainText = "記得帶傘！";
+        let clothIcon = "👕";
+        let clothText = "舒適穿搭";
+        if (parseInt(maxTemp) >= 28) {
+            clothIcon = "🎽";
+            clothText = "短袖出發";
+        } else if (parseInt(maxTemp) <= 20) {
+            clothIcon = "🧥";
+            clothText = "加件外套";
+        }
+
+        return { rainIcon, rainText, clothIcon, clothText };
+    }
+
+    function getTimePeriod(startTime) {
+        const hour = new Date(startTime).getHours();
+        if (hour >= 5 && hour < 11) return "早晨";
+        if (hour >= 11 && hour < 14) return "中午";
+        if (hour >= 14 && hour < 18) return "下午";
+        if (hour >= 18 && hour < 23) return "晚上";
+        return "深夜";
+    }
+
+    function updateLocationPill(locationName) {
+        const pill = document.getElementById("locationPill");
+        if (!pill || !locationName) return;
+        const short = locationName.replace(/[市縣]$/, ""); // 去掉最後一個「市 / 縣」
+        pill.textContent = `📍 ${short}`;
+    }
+
+    function renderWeather(data) {
+        const forecasts = data.forecasts;
+        const current = forecasts[0];
+        const others = forecasts.slice(1);
+
+        const advice = getAdvice(current.rain, current.maxTemp);
+        const period = getTimePeriod(current.startTime);
+        const avgTemp = Math.round(
+            (parseInt(current.maxTemp) + parseInt(current.minTemp)) / 2
+        );
+
+        document.getElementById("heroCard").innerHTML = `
+            <div class="hero-card">
+                <div class="hero-period">${period}</div>
+                <div class="hero-temp-container">
+                    <div class="hero-icon">${getWeatherIcon(current.weather)}</div>
+                    <div class="hero-temp">${avgTemp}°</div>
+                </div>
+                <div class="hero-desc">${current.weather}</div>
+                
+                <div class="advice-grid">
+                    <div class="advice-item">
+                        <div class="advice-icon">${advice.rainIcon}</div>
+                        <div class="advice-text">${advice.rainText}</div>
+                        <div style="font-size:0.7rem; color:#999">降雨率 ${current.rain}</div>
+                    </div>
+                    <div class="advice-item">
+                        <div class="advice-icon">${advice.clothIcon}</div>
+                        <div class="advice-text">${advice.clothText}</div>
+                        <div style="font-size:0.7rem; color:#999">最高溫 ${current.maxTemp}°</div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        const scrollContainer = document.getElementById("futureForecasts");
+        scrollContainer.innerHTML = "";
+
+        const todayDate = new Date().getDate();
+
+        others.forEach((f) => {
+            let p = getTimePeriod(f.startTime);
+            const fDate = new Date(f.startTime);
+            if (fDate.getDate() !== todayDate) {
+                p = "明天" + p;
             }
 
-            let clothIcon = "👕";
-            let clothText = "舒適穿搭";
-            if (parseInt(maxTemp) >= 28) {
-                clothIcon = "🎽";
-                clothText = "短袖出發";
-            } else if (parseInt(maxTemp) <= 20) {
-                clothIcon = "🧥";
-                clothText = "加件外套";
-            }
+            scrollContainer.innerHTML += `
+                <div class="mini-card">
+                    <div class="mini-time">${p}</div>
+                    <div class="mini-icon">${getWeatherIcon(f.weather)}</div>
+                    <div class="mini-temp">${f.minTemp}° - ${f.maxTemp}°</div>
+                    <div style="font-size:0.8rem; color:#888; margin-top:5px;">💧${f.rain}</div>
+                </div>
+            `;
+        });
 
-            return { rainIcon, rainText, clothIcon, clothText };
-        }
+        const now = new Date();
+        const month = now.getMonth() + 1;
+        const date = now.getDate();
+        const dayIndex = now.getDay();
+        const days = ["週日", "週一", "週二", "週三", "週四", "週五", "週六"];
 
-        function getTimePeriod(startTime) {
-            const hour = new Date(startTime).getHours();
-            if (hour >= 5 && hour < 11) return "早晨";
-            if (hour >= 11 && hour < 14) return "中午";
-            if (hour >= 14 && hour < 18) return "下午";
-            if (hour >= 18 && hour < 23) return "晚上";
-            return "深夜";
-        }
+        document.getElementById("updateTime").textContent = `${month}月${date}日 ${days[dayIndex]}`;
+    }
 
-        function renderWeather(data) {
-            const forecasts = data.forecasts;
-            const current = forecasts[0];
-            const others = forecasts.slice(1);
+    // 依照 locationName 呼叫後端：
+    // - 有帶參數：指定縣市
+    // - 沒帶參數：後端自動定位（你後端已處理）
+    async function fetchWeatherByLocationName(locationName) {
+        try {
+            const delayPromise = new Promise((resolve) => setTimeout(resolve, 1500));
 
-            // 1. 渲染 Hero Card (主畫面)
-            const advice = getAdvice(current.rain, current.maxTemp);
-            const period = getTimePeriod(current.startTime);
-            const avgTemp = Math.round((parseInt(current.maxTemp) + parseInt(current.minTemp)) / 2);
+            const url = locationName
+                ? `${API_BASE}?locationName=${encodeURIComponent(locationName)}`
+                : API_BASE; // 未指定 → 自動定位
 
-            document.getElementById('heroCard').innerHTML = `
-                        <div class="hero-card">
-                            <div class="hero-period">${period}</div>
-                            <div class="hero-temp-container">
-                                <div class="hero-icon">${getWeatherIcon(current.weather)}</div>
-                                <div class="hero-temp">${avgTemp}°</div>
-                            </div>
-                            <div class="hero-desc">${current.weather}</div>
-                            
-                            <div class="advice-grid">
-                                <div class="advice-item">
-                                    <div class="advice-icon">${advice.rainIcon}</div>
-                                    <div class="advice-text">${advice.rainText}</div>
-                                    <div style="font-size:0.7rem; color:#999">降雨率 ${current.rain}</div>
-                                </div>
-                                <div class="advice-item">
-                                    <div class="advice-icon">${advice.clothIcon}</div>
-                                    <div class="advice-text">${advice.clothText}</div>
-                                    <div style="font-size:0.7rem; color:#999">最高溫 ${current.maxTemp}°</div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
+            const fetchPromise = fetch(url).then((res) => res.json());
 
-            // 2. 渲染稍後預報 (包含明天判斷)
-            const scrollContainer = document.getElementById('futureForecasts');
-            scrollContainer.innerHTML = '';
+            const [_, json] = await Promise.all([delayPromise, fetchPromise]);
 
-            // 抓今天的日期數字 (例如 24)
-            const todayDate = new Date().getDate();
+            if (json.success) {
+                renderWeather(json.data);
+                updateLocationPill(json.data.city);
 
-            others.forEach(f => {
-                let p = getTimePeriod(f.startTime);
-
-                // 判斷該預報的日期是否跟今天不同，不同就是明天
-                const fDate = new Date(f.startTime);
-                if (fDate.getDate() !== todayDate) {
-                    p = "明天" + p;
+                // 同步更新下拉選單選項（自動定位時用得到）
+                const selectEl = document.getElementById("citySelect");
+                if (selectEl && json.data.city) {
+                    selectEl.value = json.data.city;
                 }
 
-                scrollContainer.innerHTML += `
-                            <div class="mini-card">
-                                <div class="mini-time">${p}</div>
-                                <div class="mini-icon">${getWeatherIcon(f.weather)}</div>
-                                <div class="mini-temp">${f.minTemp}° - ${f.maxTemp}°</div>
-                                <div style="font-size:0.8rem; color:#888; margin-top:5px;">💧${f.rain}</div>
-                            </div>
-                        `;
-            });
-
-            // 3. 右上角顯示今日日期
-            const now = new Date();
-            const month = now.getMonth() + 1;
-            const date = now.getDate();
-            const dayIndex = now.getDay();
-            const days = ["週日", "週一", "週二", "週三", "週四", "週五", "週六"];
-
-            document.getElementById('updateTime').textContent = `${month}月${date}日 ${days[dayIndex]}`;
-        }
-
-        async function fetchWeather() {
-            try {
-                // 1. 定義「最低等待時間」：1500 毫秒 (1.5秒)
-                const delayPromise = new Promise(resolve => setTimeout(resolve, 1500));
-
-                // 2. 定義「抓取資料」的工作
-                const fetchPromise = fetch(API_URL).then(res => res.json());
-
-                // 3. Promise.all 會等待「兩個都完成」才會往下走
-                // result 陣列裡，第一個是 delay 的結果(沒用到)，第二個是 api 的 json 資料
-                const [_, json] = await Promise.all([delayPromise, fetchPromise]);
-
-                if (json.success) {
-                    renderWeather(json.data);
-
-                    // 資料處理好後，隱藏 Loading，顯示主畫面
-                    document.getElementById('loading').style.display = 'none';
-                    document.getElementById('mainContent').style.display = 'block';
-                } else {
-                    throw new Error("API Error");
-                }
-            } catch (e) {
-                console.error(e);
-                alert("天氣資料讀取失敗，狸克把網路線咬斷了！");
+                document.getElementById("loading").style.display = "none";
+                document.getElementById("mainContent").style.display = "block";
+            } else {
+                throw new Error("API Error");
             }
+        } catch (e) {
+            console.error(e);
+            alert("天氣資料讀取失敗，狸克把網路線咬斷了！");
         }
+    }
 
-        document.addEventListener("DOMContentLoaded", fetchWeather);
-    </script>
+    // 前端用經緯度找最近縣市（給「📡 自動偵測」按鈕用）
+    function findNearestCity(lat, lng) {
+        let best = CITIES[0];
+        let minDist = Infinity;
+
+        CITIES.forEach((city) => {
+            const dLat = lat - city.lat;
+            const dLng = lng - city.lng;
+            const dist = dLat * dLat + dLng * dLng;
+            if (dist < minDist) {
+                minDist = dist;
+                best = city;
+            }
+        });
+
+        return best;
+    }
+
+    function initApp() {
+        const selectEl = document.getElementById("citySelect");
+        const autoBtn = document.getElementById("autoLocateBtn");
+
+        // 1. 塞入縣市選單
+        CITIES.forEach((city) => {
+            const option = document.createElement("option");
+            option.value = city.locationName;
+            option.textContent = city.label;
+            selectEl.appendChild(option);
+        });
+
+        // 2. 選單切換 → 依縣市抓天氣
+        selectEl.addEventListener("change", () => {
+            document.getElementById("loading").style.display = "flex";
+            document.getElementById("mainContent").style.display = "none";
+            fetchWeatherByLocationName(selectEl.value);
+        });
+
+        // 3. 「📡 自動偵測」按鈕：用瀏覽器定位 → 找最近縣市 → 呼叫 API
+        autoBtn.addEventListener("click", () => {
+            if (!navigator.geolocation) {
+                alert("此瀏覽器不支援定位功能，改用 IP 自動定位");
+                document.getElementById("loading").style.display = "flex";
+                document.getElementById("mainContent").style.display = "none";
+                fetchWeatherByLocationName(); // 讓後端用 IP 定位
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    const { latitude, longitude } = pos.coords;
+                    const nearest = findNearestCity(latitude, longitude);
+
+                    selectEl.value = nearest.locationName;
+                    document.getElementById("loading").style.display = "flex";
+                    document.getElementById("mainContent").style.display = "none";
+                    fetchWeatherByLocationName(nearest.locationName);
+                },
+                (err) => {
+                    console.error(err);
+                    alert("定位失敗，改用 IP 自動定位");
+                    document.getElementById("loading").style.display = "flex";
+                    document.getElementById("mainContent").style.display = "none";
+                    fetchWeatherByLocationName(); // fallback: 後端 IP
+                }
+            );
+        });
+
+        // 4. 頁面首次載入：不帶參數，讓後端「預設自動定位」
+        fetchWeatherByLocationName();
+    }
+
+    document.addEventListener("DOMContentLoaded", initApp);
+</script>
+
 </body>
 
 </html>
