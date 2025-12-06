@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>皮皮天氣</title>
+    <title>星之卡比的每日天氣蛋糕</title>
     <link rel="icon" type="image/png" href="./icon-v2.png">
     <link rel="apple-touch-icon" href="./icon-v2.png">
     <link rel="apple-touch-icon" sizes="180x180" href="./icon-v2.png">
@@ -15,19 +15,19 @@
 
     <style>
         :root {
-            --pk-sky: #7bd3ff;
-            --pk-sky-soft: #aee4ff;
-            --pk-leaf: #8be28a;
-            --pk-leaf-dark: #4aa85a;
-            --pk-soil: #3f2a28;
-            --pk-cream: #fffaf1;
+            --pk-sky: #ffd6e8;
+            --pk-sky-soft: #ffe9f2;
+            --pk-leaf: #ffb3c6;          /* 主粉紅 */
+            --pk-leaf-dark: #ff6b9e;     /* 濃一點的粉紅 */
+            --pk-soil: #f5a6c6;
+            --pk-cream: #fff8f0;
             --pk-yellow: #ffe066;
             --pk-red: #ff6b6b;
-            --pk-blue: #4dabf7;
-            --pk-purple: #b197fc;
-            --pk-text-main: #233041;
-            --pk-text-soft: #6b7480;
-            --pk-card-border: #f2e7d9;
+            --pk-blue: #6ea8ff;
+            --pk-purple: #c4a5ff;
+            --pk-text-main: #54324a;
+            --pk-text-soft: #9b6b82;
+            --pk-card-border: #ffdbe8;
         }
 
         * {
@@ -85,7 +85,7 @@
         }
 
         .location-pill::before {
-            content: "🧺";
+            content: "";
             transform: translateY(1px);
         }
 
@@ -111,7 +111,7 @@
             margin: 0 auto;
         }
 
-        /* === 皮克敏感：今日探險主卡 === */
+        /* === 皮克敏改卡比：今日探險主卡 === */
         .hero-card {
             background: var(--pk-cream);
             border-radius: 28px;
@@ -123,12 +123,11 @@
             border: 2px dashed var(--pk-card-border);
             margin-bottom: 18px;
             position: relative;
-            overflow: hidden;
+            overflow: visible;
         }
 
         .hero-card::before {
-            /* 背景小芽 */
-            content: "🌱 🌱 🌱";
+            content: "⭐️ ⭐️ ⭐️";
             position: absolute;
             bottom: 8px;
             right: 16px;
@@ -260,7 +259,7 @@
         }
 
         .ai-advice-card::before {
-            content: "🌱";
+            content: "⭐️";
             position: absolute;
             top: -10px;
             right: 10px;
@@ -278,7 +277,7 @@
         }
 
         .ai-advice-title::before {
-            content: "🤖";
+            content: "✨";
         }
 
         .ai-advice-feel {
@@ -292,10 +291,6 @@
         .ai-advice-tip {
             font-size: 0.8rem;
             color: var(--pk-text-soft);
-        }
-
-        .ai-advice-outfit::before {
-            content: "👕 ";
         }
 
         .ai-advice-tip::before {
@@ -315,7 +310,7 @@
         }
 
         .section-title::before {
-            content: "⏭️";
+            content: "🍰";
         }
 
         /* 稍後預報：橫向滑動卡片 */
@@ -346,7 +341,7 @@
         }
 
         .mini-card::after {
-            content: "🌱";
+            content: "⭐️";
             position: absolute;
             bottom: 4px;
             right: 8px;
@@ -382,26 +377,45 @@
             margin-top: 3px;
         }
 
-                /* 今日出勤小隊 */
+        /* 今日應援小隊（卡比風） */
         .squad-card {
-            margin-top: 10px;
-            padding: 8px 10px;
-            border-radius: 16px;
-            background: rgba(139, 226, 138, 0.18);
-            border: 1px dashed rgba(106, 176, 125, 0.8);
+            margin-top: 12px;
+            padding: 9px 11px;
+            border-radius: 18px;
+            background: linear-gradient(
+                135deg,
+                rgba(255, 214, 232, 0.85),
+                rgba(255, 240, 250, 0.95)
+            );
+            border: 1px solid rgba(255, 179, 209, 0.9);
+            box-shadow: 0 3px 0 rgba(0, 0, 0, 0.08);
+            text-align: left;  /* ★ 這行很關鍵：標題會靠左 */
         }
 
         .squad-title {
             font-size: 0.85rem;
             font-weight: 900;
-            color: #3c6b3e;
+            color: #b04a7c;
             display: inline-flex;
             align-items: center;
             gap: 4px;
         }
 
         .squad-title::before {
-            content: "🌱";
+            content: "⭐️";
+        }
+
+        .squad-card {
+            margin-top: 12px;
+            padding: 9px 11px;
+            border-radius: 18px;
+            background: linear-gradient(
+                135deg,
+                rgba(255, 214, 232, 0.85),
+                rgba(255, 240, 250, 0.95)
+            );
+            border: 1px solid rgba(255, 179, 209, 0.9);
+            box-shadow: 0 3px 0 rgba(0, 0, 0, 0.08);
         }
 
         .squad-row {
@@ -409,18 +423,35 @@
             flex-wrap: wrap;
             gap: 6px;
             margin-top: 6px;
+            justify-content: left;
         }
 
         .squad-chip {
             display: inline-flex;
             align-items: center;
             gap: 4px;
-            padding: 4px 8px;
+            padding: 4px 9px;
             border-radius: 999px;
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.95);
             font-size: 0.8rem;
-            color: #374151;
-            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.08);
+            color: #5c3450;
+            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.06);
+        }
+
+        .squad-chip-text {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .squad-chip-label {
+            font-weight: 900;
+            font-size: 0.8rem;
+        }
+
+        .squad-chip-role {
+            font-size: 0.7rem;
+            color: #9b6b82;  /* 比本體再淡一點的文字顏色 */
         }
 
         .squad-chip-icon {
@@ -475,9 +506,9 @@
 
 <body>
     <div id="loading" class="loading-screen">
-        <div class="loading-icon">🌱</div>
-        <p class="loading-text">皮克敏小芽正在踩點天氣中…</p>
-        <p class="loading-sub">幾片葉子後，就會帶回最新的觀測報告。</p>
+        <div class="loading-icon">⭐️</div>
+        <p class="loading-text">卡比正在幫你試吃今天的天氣…</p>
+        <p class="loading-sub">等他吃完一輪蛋糕，就會回報體感溫度與穿搭建議！</p>
     </div>
 
     <div class="status-bar">
@@ -494,13 +525,13 @@
             </select>
             <button id="autoLocateBtn"
                 style="white-space:nowrap; border:none; border-radius:999px; padding:8px 12px; background:linear-gradient(135deg,#ffe066,#ffc857); font-weight:700; cursor:pointer; box-shadow:0 3px 0 rgba(0,0,0,0.18);">
-                📡 自動偵測
+                📡 自動偵測目前位置
             </button>
         </div>
 
         <div id="heroCard"></div>
 
-        <h3 class="section-title">稍後預報</h3>
+        <h3 class="section-title">接下來的天氣預報</h3>
         <div class="scroll-container" id="futureForecasts"></div>
 
     </div>
@@ -534,6 +565,8 @@
         { locationName: "金門縣", label: "金門", lat: 24.44, lng: 118.32 },
         { locationName: "連江縣", label: "馬祖", lat: 26.16, lng: 119.95 },
     ];
+
+    const WADDLE_ICONS = ["🐵", "🙈", "🙉", "🙊", "🐒"];
 
     function getWeatherIcon(weather) {
         if (!weather) return "🌤️";
@@ -621,36 +654,47 @@
         };
     }
 
-    // 今日出勤皮克敏小隊
-    function getPikminSquad(current) {
+    // 今日應援小隊（卡比版）
+    function getKirbySquad(current) {
         const rain = parseInt(current.rain, 10) || 0;
         const t = parseInt(current.maxTemp, 10) || 0;
         const desc = current.weather || "";
         const squad = [];
 
-        // 基礎探險隊：一定會有的小芽
-        squad.push({ icon: "🌱", label: "葉皮克敏", role: "一般探索" });
+        // 永遠都會出現的卡比 + 瓦豆魯迪（隨機表情）
+        squad.push({ icon: "🌸", label: "卡比本尊", role: "負責試吃今天的天氣" });
 
-        // 依氣溫與天氣狀況出勤
-        if (t >= 30 || desc.includes("晴")) {
-            squad.push({ icon: "🔴", label: "紅皮克敏", role: "耐熱、適合大太陽" });
+        const randomIcon =
+            WADDLE_ICONS[Math.floor(Math.random() * WADDLE_ICONS.length)];
+        squad.push({
+            icon: randomIcon,
+            label: "瓦豆魯迪應援團",
+            role: "負責在旁邊加油",
+        });
+
+        // 🔥 熱：清爽系列（冰品卡比）
+        if (t >= 28 || (t >= 26 && desc.includes("晴"))) {
+            squad.push({ icon: "🍦", label: "冰品卡比", role: "負責降溫與涼爽行動" });
         }
+
+        // ☔ 雨：雨天小隊
         if (rain >= 40 || desc.includes("雨")) {
-            squad.push({ icon: "🔵", label: "藍皮克敏", role: "涉水任務、雨天行動" });
-        }
-        if (desc.includes("雷") || desc.includes("雷陣雨")) {
-            squad.push({ icon: "💛", label: "黃皮克敏", role: "擅長應對打雷天氣" });
-        }
-        if (t <= 18) {
-            squad.push({ icon: "🤍", label: "白皮克敏", role: "怕冷但移動靈活" });
-        }
-        if (t <= 14) {
-            squad.push({ icon: "💜", label: "紫皮克敏", role: "搬重物、抗冷任務" });
+            squad.push({ icon: "🌂", label: "雨具卡比", role: "專門提醒帶傘" });
         }
 
-        // 至少維持 3 隊員（不夠就多塞葉皮克敏）
-        while (squad.length < 3) {
-            squad.push({ icon: "🌱", label: "葉皮克敏", role: "一般探索" });
+        // ⚡ 雷陣雨：電氣系
+        if (desc.includes("雷") || desc.includes("雷陣雨")) {
+            squad.push({ icon: "⚡️", label: "電電卡比", role: "偵測打雷與安全提醒" });
+        }
+
+        // 🧥 微冷：保暖
+        if (t <= 18) {
+            squad.push({ icon: "🧣", label: "暖暖卡比", role: "負責圍巾與外套建議" });
+        }
+
+        // 🛏 很冷：睡衣
+        if (t <= 14) {
+            squad.push({ icon: "🛏️", label: "睡衣卡比", role: "提醒你多穿一點再出門" });
         }
 
         return squad;
@@ -678,7 +722,7 @@
         const others = forecasts.slice(1);
 
         const advice = getAdvice(current.rain, current.maxTemp, current.comfort);
-        const squad = getPikminSquad(current);
+        const squad = getKirbySquad(current);
         const period = getTimePeriod(current.startTime);
         const avgTemp = Math.round(
             (parseInt(current.maxTemp) + parseInt(current.minTemp)) / 2
@@ -722,16 +766,19 @@
 
                 <!-- 今日出勤小隊 -->
                 <div class="squad-card">
-                    <div class="squad-title">今日出勤小隊</div>
+                    <div class="squad-title">今日應援小隊</div>
                     <div class="squad-row">
                         ${squad
                             .map(
                                 (m) => `
-                            <div class="squad-chip">
-                                <span class="squad-chip-icon">${m.icon}</span>
-                                <span>${m.label}</span>
-                            </div>
-                        `
+                                <div class="squad-chip">
+                                    <span class="squad-chip-icon">${m.icon}</span>
+                                    <div class="squad-chip-text">
+                                        <div class="squad-chip-label">${m.label}</div>
+                                        <div class="squad-chip-role">${m.role}</div>
+                                    </div>
+                                </div>
+                            `
                             )
                             .join("")}
                     </div>
@@ -799,7 +846,7 @@
             }
         } catch (e) {
             console.error(e);
-            alert("天氣資料讀取失敗，皮克敏小隊迷路了！");
+            alert("天氣資料讀取失敗，卡比吃蛋糕吃到忘記回報了！");
         }
     }
 
