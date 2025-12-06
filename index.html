@@ -31,10 +31,10 @@
         }
 
         * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+                -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -164,12 +164,9 @@
         }
 
         @keyframes bounce {
-
-            0%,
-            100% {
+            0%, 100% {
                 transform: translateY(0);
             }
-
             50% {
                 transform: translateY(-9px);
             }
@@ -247,23 +244,17 @@
             margin-top: 14px;
             padding: 10px 12px;
             border-radius: 18px;
-            background: linear-gradient(135deg,
-                    rgba(139, 226, 138, 0.2),
-                    rgba(125, 211, 252, 0.15));
+            background: linear-gradient(
+                135deg,
+                rgba(139, 226, 138, 0.2),
+                rgba(125, 211, 252, 0.15)
+            );
             border: 1px solid rgba(163, 209, 173, 0.9);
             display: flex;
             flex-direction: column;
             align-items: flex-start;
             gap: 4px;
             position: relative;
-        }
-
-        .ai-advice-card::before {
-            content: "⭐️";
-            position: absolute;
-            top: -10px;
-            right: 10px;
-            font-size: 1.2rem;
         }
 
         .ai-advice-title {
@@ -297,12 +288,11 @@
             content: "🔍 ";
         }
 
-        /* 標題：稍後預報 */
+        /* 標題共用樣式（你原本的 section-title 可沿用） */
         .section-title {
             font-size: 1.1rem;
             color: var(--pk-text-main);
-            margin-bottom: 10px;
-            margin-left: 6px;
+            margin-bottom: 0;          /* ⭐ 上面這排已經是 header，不需要再壓下方 */
             font-weight: 900;
             display: inline-flex;
             align-items: center;
@@ -310,6 +300,29 @@
         }
 
         .section-title::before {
+            content: "🍭";
+        }
+
+        /* 上方：左邊「接下來的天氣預報」，右邊「卡比小語」 */
+        .forecast-header-row {
+            display: flex;
+            gap: 16px;                /* 和 .forecast-wrapper 一樣的 gap */
+            margin: 18px 6px 6px;     /* 左右 6px，和下方卡片對齊 */
+            align-items: flex-end;    /* 讓兩個標題底線對齊，看起來比較順 */
+        }
+
+        /* 每一側標題各佔一欄，寬度和下面卡片一致 */
+        .forecast-header-col {
+            flex: 1;
+        }
+
+        /* header 列裡的標題，本身不要額外 margin */
+        .forecast-header-row .section-title {
+            margin: 0;
+        }
+
+        /* 卡比那一側的標題蛋糕 icon（如果你現在是 .kirby-title 就用這個） */
+        .kirby-title::before {
             content: "🍰";
         }
 
@@ -389,7 +402,7 @@
             );
             border: 1px solid rgba(255, 179, 209, 0.9);
             box-shadow: 0 3px 0 rgba(0, 0, 0, 0.08);
-            text-align: left;  /* ★ 這行很關鍵：標題會靠左 */
+            text-align: left;  /* 標題靠左 */
         }
 
         .squad-title {
@@ -405,25 +418,12 @@
             content: "⭐️";
         }
 
-        .squad-card {
-            margin-top: 12px;
-            padding: 9px 11px;
-            border-radius: 18px;
-            background: linear-gradient(
-                135deg,
-                rgba(255, 214, 232, 0.85),
-                rgba(255, 240, 250, 0.95)
-            );
-            border: 1px solid rgba(255, 179, 209, 0.9);
-            box-shadow: 0 3px 0 rgba(0, 0, 0, 0.08);
-        }
-
         .squad-row {
             display: flex;
             flex-wrap: wrap;
             gap: 6px;
             margin-top: 6px;
-            justify-content: left;
+            justify-content: flex-start;
         }
 
         .squad-chip {
@@ -458,6 +458,73 @@
             font-size: 1rem;
         }
 
+        /* 預報 + 卡比小語 外框（左右排版） */
+        .forecast-wrapper {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;   /* 上緣對齊 */
+            margin: 0 6px 8px;   /* 不再有額外的 margin-top，卡片就會在同一高度 */
+        }
+
+        /* 左邊卡片區 */
+        .forecast-left {
+            flex: 1;
+            min-width: 0;
+        }
+
+        /* 右邊卡比小語卡片：寬度跟左邊相同 */
+        .kirby-quote-card {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.96);
+            border-radius: 20px;
+            padding: 14px 16px 12px;
+            border: 1px solid rgba(233, 222, 206, 0.9);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            margin-top: 0;  /* ⭐ 確保不會比左邊多一截 */
+        }
+
+        /* 右邊：卡比小語整欄（標題 + 卡片） */
+        .kirby-column {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;      /* 標題與卡片的距離 */
+        }
+
+        /* 卡比小語標題：沿用 section-title，但不往左縮 */
+        .kirby-section-title {
+            margin-left: 0;   /* 切齊卡片左邊 */
+        }
+
+        /* 文字區 */
+        .kirby-quote-text {
+            font-size: 0.9rem;
+            color: #54324a;
+            font-weight: 700;
+            line-height: 1.5;
+        }
+
+        .kirby-quote-tip {
+            font-size: 0.8rem;
+            color: #9b6b82;
+            margin-top: 4px;
+            line-height: 1.4;
+        }
+
+        /* 小螢幕：改成上下排 */
+        @media (max-width: 680px) {
+            .forecast-header-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .forecast-wrapper {
+                flex-direction: column;
+            }
+        }
+
         /* Loading 畫面 */
         .loading-screen {
             position: fixed;
@@ -477,12 +544,9 @@
         }
 
         @keyframes loading-bob {
-
-            0%,
-            100% {
+            0%, 100% {
                 transform: translateY(0) rotate(-4deg);
             }
-
             50% {
                 transform: translateY(-10px) rotate(4deg);
             }
@@ -525,14 +589,36 @@
             </select>
             <button id="autoLocateBtn"
                 style="white-space:nowrap; border:none; border-radius:999px; padding:8px 12px; background:linear-gradient(135deg,#ffe066,#ffc857); font-weight:700; cursor:pointer; box-shadow:0 3px 0 rgba(0,0,0,0.18);">
-                📡 自動偵測目前位置
+                📡 偵測目前位置
             </button>
         </div>
 
         <div id="heroCard"></div>
 
-        <h3 class="section-title">接下來的天氣預報</h3>
-        <div class="scroll-container" id="futureForecasts"></div>
+        <!-- 上方：左右標題 -->
+        <div class="forecast-header-row">
+            <div class="forecast-header-col">
+                <h3 class="section-title">接下來的天氣預報</h3>
+            </div>
+            <div class="forecast-header-col">
+                <h3 class="section-title kirby-title">卡比小語</h3>
+            </div>
+        </div>
+
+        <!-- 下方：左右卡片 -->
+        <div class="forecast-wrapper">
+            <!-- 左邊：預報卡片（注意：這裡不要再放 h3 標題了） -->
+            <div class="forecast-left">
+                <div class="scroll-container" id="futureForecasts"></div>
+            </div>
+
+            <!-- 右邊：卡比小語卡片 -->
+            <div class="kirby-quote-card">
+                <div id="kirbyQuoteText" class="kirby-quote-text"></div>
+                <div id="kirbyQuoteTip" class="kirby-quote-tip"></div>
+            </div>
+        </div>
+        </div>
 
     </div>
 
@@ -700,6 +786,68 @@
         return squad;
     }
 
+    // 卡比小語語錄（可以之後自己增減或改文案）
+    const KIRBY_QUOTES = [
+        { text: "今天的天氣看起來…適合再吃一片蛋糕。", tip: "記得幫自己留一點喜歡的行程，心情也會放晴。" },
+        { text: "就算雲多一點，卡比也照樣滾來滾去。", tip: "帶點餘裕出門，遇到小插曲也能可愛帶過。" },
+        { text: "氣溫有點涼？那就多一層蓬鬆的幸福。", tip: "薄外套或帽 T 是今日的安全感來源。" },
+        { text: "如果不知道要穿什麼，就先挑讓自己開心的顏色。", tip: "心情是今天最重要的穿搭配件。" },
+        { text: "天氣好壞，不能決定卡比吃幾塊蛋糕。", tip: "把行程排得鬆一點，給自己保留喘口氣的空間。" },
+        { text: "風吹過來的時候，就當是在幫卡比降溫。", tip: "風比較大時，記得收好帽子和紙張，小物件容易飛走。" },
+        { text: "陰天其實很適合散步，不會曬到變烤卡比。", tip: "溫度舒適時，多走幾步，身體也會更清醒。" },
+        { text: "雨天也沒關係，有雨聲陪你慢慢前進。", tip: "帶傘、穿好鞋，雨天一樣可以是可愛的日子。" },
+        { text: "冷一點的日子，更適合抱著熱飲發呆。", tip: "手邊準備一杯溫熱的飲料，從手開始暖起來。" },
+        { text: "太熱的話，就把自己當成需要冷藏的蛋糕。", tip: "少待太久的太陽底下，多躲進室內或陰影裡。"},
+        { text: "今天的雲看起來，像是卡比咬過的棉花糖。", tip: "抬頭看一下天空，說不定會發現很好玩的形狀。" },
+        { text: "不管幾度，只要出門前深呼吸三次，今天就會好一點。", tip: "給自己 10 秒鐘，讓心情跟身體一起醒來。" },
+        { text: "風把頭髮吹亂沒關係，把心情梳順一點就好。", tip: "帶頂帽子或髮圈，會輕鬆很多。" },
+        { text: "如果猶豫要不要帶外套，那就帶吧。", tip: "外套可以不穿，但忘記帶就真的沒得選。" },
+        { text: "雖然天氣預報會變，但你可以一直很可愛。", tip: "行程留點彈性，變動來了也不容易慌。" },
+        { text: "今天不一定要很努力，但可以對自己溫柔一點。", tip: "把待辦分成『一定要』和『可以晚點』，減少壓力。" },
+        { text: "有時候陰天，只是在幫你省防曬乳。", tip: "不想曬黑還是可以薄擦一層，未來的自己會感謝你。" },
+        { text: "感覺累的時候，就把自己當成需要充電的卡比。", tip: "中午或下午安排一個 5 分鐘的小休息，效果常常超過預期。" },
+        { text: "天氣普通的日子，反而最適合默默前進。", tip: "沒有特別的事，也是一種安穩的幸福。" },
+        { text: "如果早上出門很趕，就讓卡比幫你說：今天這樣就很好了。", tip: "不用追求完美出門，只要有到就很棒。"},
+        // 你可以再補到 50 句，先給你 20 句示範
+    ];
+
+    let currentQuoteIndex = -1;
+    window._kirbyQuoteTimer = null;
+
+        function pickRandomQuote() {
+        if (!KIRBY_QUOTES.length) return null;
+
+        let idx;
+        do {
+            idx = Math.floor(Math.random() * KIRBY_QUOTES.length);
+        } while (KIRBY_QUOTES.length > 1 && idx === currentQuoteIndex);
+
+        currentQuoteIndex = idx;
+        return KIRBY_QUOTES[idx];
+    }
+
+    function initQuoteRotation() {
+        const textEl = document.getElementById("kirbyQuoteText");
+        const tipEl = document.getElementById("kirbyQuoteTip");
+        if (!textEl || !tipEl) return;   // 保險：DOM 還沒畫好就不要動
+
+        const applyQuote = () => {
+            const q = pickRandomQuote();
+            if (!q) return;
+            textEl.textContent = q.text;
+            tipEl.textContent = q.tip;
+        };
+
+        // 先馬上更新一次
+        applyQuote();
+
+        // 如果之前有 timer，先清掉，避免重複 setInterval
+        if (window._kirbyQuoteTimer) {
+            clearInterval(window._kirbyQuoteTimer);
+        }
+
+    }
+
     function getTimePeriod(startTime) {
         const hour = new Date(startTime).getHours();
         if (hour >= 5 && hour < 11) return "早晨";
@@ -728,7 +876,7 @@
             (parseInt(current.maxTemp) + parseInt(current.minTemp)) / 2
         );
 
-        document.getElementById("heroCard").innerHTML = `
+        const heroHtml = `
             <div class="hero-card">
                 <div class="hero-period">${period}</div>
                 <div class="hero-temp-container">
@@ -786,6 +934,9 @@
             </div>
         `;
 
+        document.getElementById("heroCard").innerHTML = heroHtml;
+
+        // ======== 底下是原本的「稍後預報」 ========
         const scrollContainer = document.getElementById("futureForecasts");
         scrollContainer.innerHTML = "";
 
@@ -815,6 +966,9 @@
         const days = ["週日", "週一", "週二", "週三", "週四", "週五", "週六"];
 
         document.getElementById("updateTime").textContent = `${month}月${date}日 ${days[dayIndex]}`;
+
+        // 這裡新增：每次更新天氣時，也更新一次小語
+        initQuoteRotation();
     }
 
     // 依照 locationName 呼叫後端
