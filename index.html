@@ -255,6 +255,9 @@
             align-items: flex-start;
             gap: 4px;
             position: relative;
+            
+            /* ⭐ 新增這一行，讓文字都靠左 */
+            text-align: left;
         }
 
         .ai-advice-title {
@@ -462,8 +465,8 @@
         .forecast-wrapper {
             display: flex;
             gap: 16px;
-            align-items: flex-start;   /* 上緣對齊 */
-            margin: 0 6px 8px;   /* 不再有額外的 margin-top，卡片就會在同一高度 */
+            align-items: stretch;   /* ⭐ 撐滿兩邊高度 */
+            margin: 6px 6px 8px;   /* 不再有額外的 margin-top，卡片就會在同一高度 */
         }
 
         /* 左邊卡片區 */
@@ -472,9 +475,49 @@
             min-width: 0;
         }
 
-        /* 右邊卡比小語卡片：寬度跟左邊相同 */
-        .kirby-quote-card {
+        /* 卡比小語：預設桌機隱藏，只在手機版打開 */
+        .kirby-quote-label {
+            display: none;                 /* 桌機不顯示，手機在 media query 裡打開 */
+            font-size: 1.1rem;             /* 和 .section-title 一樣 */
+            font-weight: 900;
+            color: var(--pk-text-main);
+            display: none;
+            align-items: center;
+            gap: 6px;                      /* 和 .section-title 一樣 */
+            margin-bottom: 6px;            /* 標題和下面卡片的距離 */
+        }
+
+        /* 前面加蛋糕 icon，和上面 header 的卡比小語一致 */
+        .kirby-quote-label::before {
+            content: "🍰";
+        }
+
+        /* 文字本體 */
+        .kirby-quote-text {
+            font-size: 0.9rem;
+            color: #54324a;
+            font-weight: 700;
+            line-height: 1.5;
+        }
+
+        .kirby-quote-tip {
+            font-size: 0.8rem;
+            color: #9b6b82;
+            margin-top: 4px;
+            line-height: 1.4;
+        }
+
+        .kirby-column {
             flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: stretch;   /* ⭐ 讓卡片可以撐滿 */
+        }
+
+        .kirby-quote-card {
+            flex: 1;                /* ⭐ 右側卡片吃滿高度（桌機） */
             background: rgba(255, 255, 255, 0.96);
             border-radius: 20px;
             padding: 14px 16px 12px;
@@ -482,16 +525,7 @@
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
             display: flex;
             flex-direction: column;
-            margin-top: 0;  /* ⭐ 確保不會比左邊多一截 */
-        }
-
-        /* 右邊：卡比小語整欄（標題 + 卡片） */
-        .kirby-column {
-            flex: 1;
-            min-width: 0;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;      /* 標題與卡片的距離 */
+            margin-top: 0;
         }
 
         /* 卡比小語標題：沿用 section-title，但不往左縮 */
@@ -516,14 +550,37 @@
 
         /* 小螢幕：改成上下排 */
         @media (max-width: 680px) {
-            .forecast-header-row {
-                flex-direction: column;
-                align-items: flex-start;
-            }
             .forecast-wrapper {
-                flex-direction: column;
+                flex-direction: column;   /* 上下排 */
+                align-items: stretch;     /* 兩塊都撐滿寬度 */
+            }
+
+            /* 卡比小語卡片在手機版回到自然高度 */
+            .kirby-quote-card {
+                flex: none;               /* 覆蓋桌機版的 flex:1 */
+            }
+
+            .forecast-left,
+            .kirby-column {
+                flex: none;
+                width: 100%;              /* 每個區塊各占一整行 */
+            }
+
+            .kirby-column {
+                margin-top: 12px;         /* 和上面天氣卡片留一點距離 */
+            }
+
+            /* ✅ 手機版顯示卡比小語標籤（在卡片上方） */
+            .kirby-quote-label {
+                display: inline-flex;
+            }
+
+            /* ✅ 手機版隱藏上面 header 裡「卡比小語」那一欄，只留左邊標題 */
+            .forecast-header-row .forecast-header-col:last-child {
+                display: none;
             }
         }
+
 
         /* Loading 畫面 */
         .loading-screen {
@@ -595,30 +652,34 @@
 
         <div id="heroCard"></div>
 
-        <!-- 上方：左右標題 -->
+        <!-- 上方：左右標題（左：接下來的天氣預報／右：卡比小語） -->
         <div class="forecast-header-row">
             <div class="forecast-header-col">
                 <h3 class="section-title">接下來的天氣預報</h3>
             </div>
             <div class="forecast-header-col">
+                <!-- 加 kirby-title 只是換 icon，樣式沿用 section-title -->
                 <h3 class="section-title kirby-title">卡比小語</h3>
             </div>
         </div>
 
-        <!-- 下方：左右卡片 -->
+
+        <!-- 下方：預報卡片 + 卡比小語 -->
         <div class="forecast-wrapper">
-            <!-- 左邊：預報卡片（注意：這裡不要再放 h3 標題了） -->
+            <!-- 左邊：預報卡片 -->
             <div class="forecast-left">
                 <div class="scroll-container" id="futureForecasts"></div>
             </div>
 
-            <!-- 右邊：卡比小語卡片 -->
-            <div class="kirby-quote-card">
-                <div id="kirbyQuoteText" class="kirby-quote-text"></div>
-                <div id="kirbyQuoteTip" class="kirby-quote-tip"></div>
+            <!-- 右邊：卡比小語（標題 + 卡片） -->
+            <div class="kirby-column">
+                <div class="kirby-quote-label">卡比小語</div>
+                <div class="kirby-quote-card">
+                    <div id="kirbyQuoteText" class="kirby-quote-text"></div>
+                    <div id="kirbyQuoteTip" class="kirby-quote-tip"></div>
+                </div>
             </div>
-        </div>
-        </div>
+</div>
 
     </div>
 
