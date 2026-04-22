@@ -1041,7 +1041,12 @@
                 ? `${API_BASE}?locationName=${encodeURIComponent(locationName)}`
                 : API_BASE;
 
-            const fetchPromise = fetch(url).then((res) => res.json());
+            const fetchPromise = fetch(url).then(async (res) => {
+                const json = await res.json();
+                console.log("API URL:", url);
+                console.log("API response:", json);
+                return json;
+            });
 
             const [_, json] = await Promise.all([delayPromise, fetchPromise]);
 
